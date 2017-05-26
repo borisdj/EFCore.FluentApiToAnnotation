@@ -8,7 +8,6 @@ namespace EFCore.FluentApiToAnnotation
         {
             var usingDirectives = new List<string>
             {
-                "using System;",
                 "using Microsoft.EntityFrameworkCore;",
                 "using Microsoft.EntityFrameworkCore.Metadata;"
             };

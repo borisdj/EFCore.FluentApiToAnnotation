@@ -23,15 +23,20 @@ namespace EFCore.FluentApiToAnnotation
         private string PublicPartialClassText => $"{PublicText} {KeyWord.Partial.ToTextLower()} {Util.Class} ";
         private string PublicVirtualText => $"{PublicText} {KeyWord.Virtual.ToTextLower()} ";
         private string GetSetText  => " { get; set; }";
-
+        
         private Dictionary<string, string> ApiToAnnotationDict = new Dictionary<string, string>();
 
-        public string InputFolder { get; set; } = "DbModelsInput";
-        public string OutputFolder { get; set; } = "DbModelsOutput";
+        private List<string> FluentApiLines = new List<string>();
+
+        public string InputFolder { get; set; } = "EntitiesInput";
+        public string OutputFolder { get; set; } = "EntitiesOutput";
         public string DbContextText { get; set; } = "DbContext";
-        public string CommitText { get; set; } = "Commit";
+        public string SaveChangesText { get; set; } = "SaveChanges";
 
         public string ColonDbContext => $" : {DbContextText}";
+
+        public bool DoWriteCollections { get; set; }
+        public bool DoWriteSaveChangesMethod { get; set; }
 
         public CsGenerator CsGenerator { get; set; } = new CsGenerator();
 
@@ -123,15 +128,18 @@ namespace EFCore.FluentApiToAnnotation
                     fileModel.Name = line.Replace(PublicPartialClassText, ""); //.Split(new string[] { " class " }, StringSplitOptions.None)[1];
                     classModel = new ClassModel(fileModel.Name);
                 }
-                else if (line.Contains(" = new HashSet<")) // Constructor body
+                else if (DoWriteCollections && line.Contains(" = new HashSet<")) // Constructor body
                 {
-                    classModel.DefaultConstructor.BodyLines.Add(line); // HashSets initialisations
+                    string hashSetName = line.Split(" ")[0];
+                    string hashSetPluralLine = line.Replace(hashSetName + " ", hashSetName.Pluralize() + " ");
+                    classModel.DefaultConstructor.BodyLines.Add(hashSetPluralLine); // HashSets initialisations
                     classModel.DefaultConstructor.IsVisible = true;
                 }
                 else if (line.EndsWith(GetSetText)) // { get; set; }
                 {
                     string[] typeAndName = line.Replace(PublicText, "").Replace(GetSetText, "").Trim().Split(' ');
                     Property property = null;
+                    bool isICollection = typeAndName[1].StartsWith("ICollection");
 
                     if (typeAndName[0] != KeyWord.Virtual.ToTextLower()) // Property (... type Column)
                     {
@@ -139,10 +147,14 @@ namespace EFCore.FluentApiToAnnotation
                     }
                     else // Navigation Property (... virtual ICollection<Table> Table)
                     {
-                        property = new Property(typeAndName[1], typeAndName[2]);
+                        var propertyName = isICollection ? typeAndName[2].Pluralize() : typeAndName[2];
+                        property = new Property(typeAndName[1], propertyName);
                         property.KeyWords.Add(KeyWord.Virtual);
                     }
-                    classModel.Properties.Add(property.Name, property);
+                    if(!isICollection || DoWriteCollections)
+                    {
+                        classModel.Properties.Add(property.Name, property);
+                    }
                 }
             }
 
@@ -164,8 +176,7 @@ namespace EFCore.FluentApiToAnnotation
             string modelBuilderEntityText = "modelBuilder.Entity<";
             string onConfiguringText = "OnConfiguring";
             string onModelCreatingText = "OnModelCreating";
-
-
+            
             FileModel fileModel = new FileModel();
             ClassModel classModel = new ClassModel();
 
@@ -201,10 +212,13 @@ namespace EFCore.FluentApiToAnnotation
                 else if (line.Contains(onConfiguringText)) // OnConfiguring -> Constructor
                 {
                     // ConnectionString is in config and will be injected with DI
-                    var constructor = new Constructor(classModel.Name);
-                    constructor.IsVisible = true;
-                    constructor.Parameters.Add(new Parameter(customDataType: "DbContextOptions<VideoRentalContext>", name: "options"));
-                    constructor.BaseParameters = "options";
+                    var constructor = new Constructor(classModel.Name)
+                    {
+                        IsVisible = true,
+                        BaseParameters = "options",
+                        BracesInNewLine = false
+                    };
+                    constructor.Parameters.Add(new Parameter(customDataType: "DbContextOptions", name: "options"));
                     classModel.Constructors.Add(constructor);
                 }
                 else if (line.Contains(onModelCreatingText)) // OnModelCreating
@@ -250,9 +264,17 @@ namespace EFCore.FluentApiToAnnotation
                 }
             }
 
-            var commit = new Method(AccessModifier.Protected, KeyWord.Override, BuiltInDataType.Void, CommitText);
-            commit.BodyLines.Add("base.SaveChanges();");
-            classModel.Methods.Add(CommitText, commit);
+            foreach (var line in FluentApiLines)
+            {
+                classModel.Methods[onModelCreatingText].BodyLines.AddRange(FluentApiLines);
+            }
+
+            if (DoWriteSaveChangesMethod)
+            {
+                var commit = new Method(AccessModifier.Protected, KeyWord.Override, BuiltInDataType.Int, SaveChangesText);
+                commit.BodyLines.Add("base.SaveChanges();");
+                classModel.Methods.Add(SaveChangesText, commit);
+            }
 
             fileModel.Classes.Add(classModel.Name, classModel);
             CsGenerator.Files.Add(fileModel.Name, fileModel);
@@ -263,8 +285,12 @@ namespace EFCore.FluentApiToAnnotation
             //FORMAT: entity.ToTable(||"TableName"||, ||"SchemaName"||);
             string[] tableAndSchema = line.Remove(new string[] { entityToTableText, ");" }).Split(", ");
             var tableAttribute = new AttributeModel("Table");
-            tableAttribute.Parameters.Add(new Parameter(tableAndSchema[0])); // tableName
-            tableAttribute.Parameters.Add(new Parameter(tableAndSchema[1])); // schemaName
+            string tableNameQuoted = tableAndSchema[0];
+            string tableName = tableNameQuoted.Remove("\"");
+            string tableAttributeName = tableName == entityClass.Name ? $"nameof({tableName})" : tableNameQuoted; // if same name as entity use nameof(Entity)
+
+            tableAttribute.Parameters.Add(new Parameter(tableAttributeName));
+            tableAttribute.Parameters.Add(new Parameter("Schema =", tableAndSchema[1])); // schemaName
             entityClass.Attributes.Add(tableAttribute.Name, tableAttribute);
         }
 
@@ -328,7 +354,7 @@ namespace EFCore.FluentApiToAnnotation
                     {
                         attribute.Parameters.Add(new Parameter(parameterValue));
                     }
-                    entityClass.Properties[attributeProperty].Attributes.Add(attribute.Name, attribute);
+                    entityClass.Properties[attributeProperty].AddAttribute(attribute);
                 }
             }
         }
@@ -356,10 +382,16 @@ namespace EFCore.FluentApiToAnnotation
             if (!foreignTableId.EndsWith(foreignKey) || deleteBehavior != null)
             {
                 var attribute = new AttributeModel("ForeignKey");
-                attribute.Parameters.Add(new Parameter(value: $@"""{foreignTable}"""));
+                string deleteBehaviorParameter = "";
                 if (deleteBehavior != null)
-                    attribute.Parameters.Add(new Parameter(value: $"/*DeleteBehavior.{deleteBehavior}*/"));
+                {
+                    deleteBehaviorParameter = "/*, DeleteBehavior.{deleteBehavior}*/";
+                }
+                attribute.Parameters.Add(new Parameter(value: $@"""{foreignTable}""{deleteBehaviorParameter}"));
                 entityClass.Properties[foreignKey].Attributes.Add(attribute.Name, attribute);
+
+                // Have to keep FluentApi when DeleteBehavior not default (for example FK notNull but with DeleteBehavior.Restrict)
+                FluentApiLines.Add($"modelBuilder.Entity<{primaryTable}>().HasOne(p => p.{foreignTable}).WithMany().OnDelete(DeleteBehavior.{deleteBehavior});");
             }
         }
 
