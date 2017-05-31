@@ -8,16 +8,19 @@
   <ItemGroup>
     <Compile Remove="DbModelsInput\**" />
     <Compile Remove="DbModelsOutput\**" />
+    <Compile Remove="EntitiesInputDEMO\**" />
     <Compile Remove="EntitiesInput\**" />
     <Compile Remove="EntitiesOutput\**" />
     <Compile Remove="Entities\**" />
     <EmbeddedResource Remove="DbModelsInput\**" />
     <EmbeddedResource Remove="DbModelsOutput\**" />
+    <EmbeddedResource Remove="EntitiesInputDEMO\**" />
     <EmbeddedResource Remove="EntitiesInput\**" />
     <EmbeddedResource Remove="EntitiesOutput\**" />
     <EmbeddedResource Remove="Entities\**" />
     <None Remove="DbModelsInput\**" />
     <None Remove="DbModelsOutput\**" />
+    <None Remove="EntitiesInputDEMO\**" />
     <None Remove="EntitiesInput\**" />
     <None Remove="EntitiesOutput\**" />
     <None Remove="Entities\**" />

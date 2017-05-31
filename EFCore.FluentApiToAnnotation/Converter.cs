@@ -226,6 +226,7 @@ namespace EFCore.FluentApiToAnnotation
                     var method = new Method(AccessModifier.Protected, KeyWord.Override, BuiltInDataType.Void, onModelCreatingText);
                     method.BodyLines.Add("base.OnModelCreating(modelBuilder);");
                     method.BodyLines.Add("this.FixOnModelCreating(modelBuilder);");
+                    method.BodyLines.Add("");
 
                     method.Parameters.Add(new Parameter(customDataType: "ModelBuilder", name: "modelBuilder"));
                     classModel.Methods.Add(onModelCreatingText, method);
@@ -365,13 +366,21 @@ namespace EFCore.FluentApiToAnnotation
             string withManyText = "WithMany(p => p.";
             string hasForeignKeyText = "HasForeignKey(d => d.";
             string onDeleteDeleteBehavior = "OnDelete(DeleteBehavior.";
+            string hasConstraintName = "HasConstraintName(";
 
             string[] entityConfigs = line.Remove(new string[] { entityHasOneText, ");" }).Split(").");
             string foreignTable = entityConfigs[0];
             string foreignTableId = foreignTable + "Id";
             string primaryTable = entityConfigs[1].Remove(withManyText);
             string foreignKey = entityConfigs[2].Remove(hasForeignKeyText);
-            string deleteBehavior = entityConfigs.Length > 3 ? entityConfigs[3].Remove(onDeleteDeleteBehavior) : null;
+            string deleteBehavior = (entityConfigs.Length > 3  && entityConfigs[3].Contains(onDeleteDeleteBehavior)) ? entityConfigs[3].Remove(onDeleteDeleteBehavior) : null;
+
+            int position = 0;
+            if (deleteBehavior == null && entityConfigs.Length > 3)
+                position = 3;
+            else if (entityConfigs.Length > 4)
+                position = 4;
+            string constraintName = (entityConfigs[position].Contains(hasConstraintName)) ? entityConfigs[position].Remove(hasConstraintName) : null;
 
             // removes [Index] attributes since in annotation FK has it by default.
             var property = entityClass.Properties[foreignKey];
@@ -379,19 +388,32 @@ namespace EFCore.FluentApiToAnnotation
             // TODO: consider situation when no Index, so [ForeignKey] attribute should have explicit parameter 'HasIndex = false'
 
             // not required when FK relationship comes from default convention 'virtual RelationTable' and 'virtual ICollection<RelationTable>'
-            if (!foreignTableId.EndsWith(foreignKey) || deleteBehavior != null)
+            if (!foreignTableId.EndsWith(foreignKey) || deleteBehavior != null || constraintName != null)
             {
                 var attribute = new AttributeModel("ForeignKey");
-                string deleteBehaviorParameter = "";
+                string aditionalParameters = "";
                 if (deleteBehavior != null)
                 {
-                    deleteBehaviorParameter = "/*, DeleteBehavior.{deleteBehavior}*/";
+                    aditionalParameters = $"/*, DeleteBehavior.{deleteBehavior}";
                 }
-                attribute.Parameters.Add(new Parameter(value: $@"""{foreignTable}""{deleteBehaviorParameter}"));
+                if (constraintName != null)
+                {
+                    aditionalParameters += $", ConstraintName = {constraintName}";
+                }
+                if(String.IsNullOrEmpty(aditionalParameters))
+                    aditionalParameters += "*/";
+
+                attribute.Parameters.Add(new Parameter(value: $@"""{foreignTable}""{aditionalParameters}"));
                 entityClass.Properties[foreignKey].Attributes.Add(attribute.Name, attribute);
 
                 // Have to keep FluentApi when DeleteBehavior not default (for example FK notNull but with DeleteBehavior.Restrict)
-                FluentApiLines.Add($"modelBuilder.Entity<{primaryTable}>().HasOne(p => p.{foreignTable}).WithMany().OnDelete(DeleteBehavior.{deleteBehavior});");
+                string fluentApiLine = $"modelBuilder.Entity<{primaryTable}>().HasOne(p => p.{foreignTable}).WithMany()";
+                if (deleteBehavior != null)
+                    fluentApiLine += $".OnDelete(DeleteBehavior.{deleteBehavior})";
+                if (constraintName != null)
+                    fluentApiLine += $".HasConstraintName({constraintName})";
+                fluentApiLine += ";";
+                FluentApiLines.Add(fluentApiLine);
             }
         }
 
