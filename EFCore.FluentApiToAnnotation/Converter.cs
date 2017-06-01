@@ -25,6 +25,7 @@ namespace EFCore.FluentApiToAnnotation
         private string GetSetText  => " { get; set; }";
         
         private Dictionary<string, string> ApiToAnnotationDict = new Dictionary<string, string>();
+        private Dictionary<string, string> NavigationEntityNameTypeDict = new Dictionary<string, string>();
 
         private List<string> FluentApiLines = new List<string>();
 
@@ -39,7 +40,7 @@ namespace EFCore.FluentApiToAnnotation
         public bool DoWriteSaveChangesMethod { get; set; }
 
         public CsGenerator CsGenerator { get; set; } = new CsGenerator();
-
+        
         public List<string[]> Files { get; set; } = new List<string[]>();
 
         public void LoadFiles()
@@ -150,6 +151,8 @@ namespace EFCore.FluentApiToAnnotation
                         var propertyName = isICollection ? typeAndName[2].Pluralize() : typeAndName[2];
                         property = new Property(typeAndName[1], propertyName);
                         property.KeyWords.Add(KeyWord.Virtual);
+
+                        NavigationEntityNameTypeDict.Add(fileModel.Name + ":" + propertyName, typeAndName[1]);
                     }
                     if(!isICollection || DoWriteCollections)
                     {
@@ -265,10 +268,7 @@ namespace EFCore.FluentApiToAnnotation
                 }
             }
 
-            foreach (var line in FluentApiLines)
-            {
-                classModel.Methods[onModelCreatingText].BodyLines.AddRange(FluentApiLines);
-            }
+            classModel.Methods[onModelCreatingText].BodyLines.AddRange(FluentApiLines);
 
             if (DoWriteSaveChangesMethod)
             {
@@ -349,13 +349,18 @@ namespace EFCore.FluentApiToAnnotation
                 if (!isDefaultConfig)
                 {
                     string[] configTypeAndParam = entityConfigs[k].Split("(", 2);
-                    var attribute = new AttributeModel(ApiToAnnotationDict[configTypeAndParam[0]]);
-                    string parameterValue = configTypeAndParam[1];
+                    string attributeName = ApiToAnnotationDict[configTypeAndParam[0]];
+                    var attributesDict = entityClass.Properties[attributeProperty].Attributes;
+                    bool isExistingAttribute = attributesDict.ContainsKey(attributeName);
+                    var attribute = isExistingAttribute ? attributesDict[attributeName] : new AttributeModel(attributeName);
+                    if(!isExistingAttribute)
+                        entityClass.Properties[attributeProperty].AddAttribute(attribute);
+
+                    string parameterValue = (configTypeAndParam[0] == "HasColumnType" ? "TypeName = " : "") + configTypeAndParam[1];
                     if (!String.IsNullOrWhiteSpace(parameterValue))
                     {
                         attribute.Parameters.Add(new Parameter(parameterValue));
                     }
-                    entityClass.Properties[attributeProperty].AddAttribute(attribute);
                 }
             }
         }
@@ -369,9 +374,10 @@ namespace EFCore.FluentApiToAnnotation
             string hasConstraintName = "HasConstraintName(";
 
             string[] entityConfigs = line.Remove(new string[] { entityHasOneText, ");" }).Split(").");
-            string foreignTable = entityConfigs[0];
+            string primaryTable = entityClass.Name; //entityConfigs[1].Remove(withManyText); // withManyText can have sufix on name when multiple FKs to same table
+            string foreignKeyNavigationProperty = entityConfigs[0];
+            string foreignTable = NavigationEntityNameTypeDict[primaryTable + ":" + foreignKeyNavigationProperty];
             string foreignTableId = foreignTable + "Id";
-            string primaryTable = entityConfigs[1].Remove(withManyText);
             string foreignKey = entityConfigs[2].Remove(hasForeignKeyText);
             string deleteBehavior = (entityConfigs.Length > 3  && entityConfigs[3].Contains(onDeleteDeleteBehavior)) ? entityConfigs[3].Remove(onDeleteDeleteBehavior) : null;
 
@@ -404,11 +410,11 @@ namespace EFCore.FluentApiToAnnotation
                 if(!String.IsNullOrEmpty(aditionalParameters))
                     aditionalParameters += "*/";
 
-                attribute.Parameters.Add(new Parameter(value: $@"""{foreignTable}""{aditionalParameters}"));
+                attribute.Parameters.Add(new Parameter(value: $@"""{foreignKeyNavigationProperty}""{aditionalParameters}"));
                 entityClass.Properties[foreignKey].Attributes.Add(attribute.Name, attribute);
 
                 // Have to keep FluentApi when DeleteBehavior not default (for example FK notNull but with DeleteBehavior.Restrict)
-                string fluentApiLine = $"modelBuilder.Entity<{primaryTable}>().HasOne(p => p.{foreignTable}).WithMany()";
+                string fluentApiLine = $"modelBuilder.Entity<{primaryTable}>().HasOne(p => p.{foreignKeyNavigationProperty}).WithMany()";
                 if (!foreignTableId.EndsWith(foreignKey))
                     fluentApiLine += $".HasForeignKey(d => d.{foreignKey})";
                 if (deleteBehavior != null)
@@ -426,11 +432,11 @@ namespace EFCore.FluentApiToAnnotation
             ApiToAnnotationDict.Add("ValueGeneratedOnAdd", "DatabaseGenerated(DatabaseGeneratedOption.Identity)");
             ApiToAnnotationDict.Add("ValueGeneratedOnAddOrUpdate", "DatabaseGenerated(DatabaseGeneratedOption.Computed)");
             ApiToAnnotationDict.Add("HasColumnName", "Column");
+            ApiToAnnotationDict.Add("HasColumnType", "Column"); // curently has only DecimalType custom precision support
             ApiToAnnotationDict.Add("IsRequired", "Required");
             ApiToAnnotationDict.Add("HasMaxLength", "MaxLength");
             ApiToAnnotationDict.Add("HasDefaultValue", "DefaultValue");
             ApiToAnnotationDict.Add("HasDefaultValueSql", "DefaultValueSql");
-            ApiToAnnotationDict.Add("HasColumnType", "DecimalType"); // curently has only DecimalType custom precision support
 
             // Attribute is not required when DEFAULT
             /*

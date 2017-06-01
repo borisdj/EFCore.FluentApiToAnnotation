@@ -8,9 +8,10 @@ namespace EFCore.FluentApiToAnnotation
         {
             var usingDirectives = new List<string>
             {
+                "using EfCore.Shaman;",
                 "using Microsoft.EntityFrameworkCore;",
                 "using Microsoft.EntityFrameworkCore.Metadata;"
-            };
+        };
             return usingDirectives;
         }
 
@@ -22,7 +23,8 @@ namespace EFCore.FluentApiToAnnotation
                 "using System.Collections.Generic;",
                 "using System.ComponentModel;",
                 "using System.ComponentModel.DataAnnotations;",
-                "using System.ComponentModel.DataAnnotations.Schema;"
+                "using System.ComponentModel.DataAnnotations.Schema;",
+                "using EfCore.Shaman;"
 
                 // Following is alternative way, more dynamic string concatenation but not required in this simple case - it would be overkill
                 /*var usingString = "using";
@@ -32,12 +34,14 @@ namespace EFCore.FluentApiToAnnotation
                 var componentModel = "ComponentModel";
                 var dataAnnotations = "DataAnnotations";
                 var schema = "Schema";
+                var efCoreShaman = "EfCore.Shaman;"
 
                 var usingSystem = $"{usingString} {system}";
                 var usingSystCollGeneric = $"{usingSystem}.{collections}.{generic}";
                 var usingSystComponentModel = $"{usingSystem}{componentModel}";
                 var usingCompModDataAnnotations = $"{usingSystComponentModel}.{dataAnnotations}";
-                var usingCompModDataAnnSchema = $"{usingSystComponentModel}.{schema}";*/
+                var usingCompModDataAnnSchema = $"{usingSystComponentModel}.{schema}";
+                var usingEfCoreShaman = $"{usingString} {efCoreShaman}"; */
             };
             return usingDirectives;
         }
