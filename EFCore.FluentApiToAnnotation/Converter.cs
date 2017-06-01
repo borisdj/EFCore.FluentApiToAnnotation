@@ -398,9 +398,10 @@ namespace EFCore.FluentApiToAnnotation
                 }
                 if (constraintName != null)
                 {
+                    aditionalParameters += deleteBehavior == null ? "/*" : "";
                     aditionalParameters += $", ConstraintName = {constraintName}";
                 }
-                if(String.IsNullOrEmpty(aditionalParameters))
+                if(!String.IsNullOrEmpty(aditionalParameters))
                     aditionalParameters += "*/";
 
                 attribute.Parameters.Add(new Parameter(value: $@"""{foreignTable}""{aditionalParameters}"));
@@ -408,6 +409,8 @@ namespace EFCore.FluentApiToAnnotation
 
                 // Have to keep FluentApi when DeleteBehavior not default (for example FK notNull but with DeleteBehavior.Restrict)
                 string fluentApiLine = $"modelBuilder.Entity<{primaryTable}>().HasOne(p => p.{foreignTable}).WithMany()";
+                if (!foreignTableId.EndsWith(foreignKey))
+                    fluentApiLine += $".HasForeignKey(d => d.{foreignKey})";
                 if (deleteBehavior != null)
                     fluentApiLine += $".OnDelete(DeleteBehavior.{deleteBehavior})";
                 if (constraintName != null)
