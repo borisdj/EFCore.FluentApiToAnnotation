@@ -2,11 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace CoreTemplate.Entities
+namespace CoreTemplate.Entities2
 {
     public partial class CoreTemplateContext : DbContext
     {
         public virtual DbSet<Company> Company { get; set; }
+        public virtual DbSet<Group> Group { get; set; }
         public virtual DbSet<Item> Item { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -24,6 +25,13 @@ namespace CoreTemplate.Entities
                 entity.Property(e => e.Name).IsRequired();
             });
 
+            modelBuilder.Entity<Group>(entity =>
+            {
+                entity.Property(e => e.GroupId).ValueGeneratedNever();
+
+                entity.Property(e => e.Name).IsRequired();
+            });
+
             modelBuilder.Entity<Item>(entity =>
             {
                 entity.ToTable("Item", "fin");
@@ -31,18 +39,33 @@ namespace CoreTemplate.Entities
                 entity.HasIndex(e => e.CompanyId)
                     .HasName("IX_Item_CompanyId");
 
+                entity.HasIndex(e => e.Description)
+                    .HasName("IX_Item_Description")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.GroupId)
+                    .HasName("IX_Item_GroupId");
+
                 entity.Property(e => e.ItemId).ValueGeneratedNever();
 
-                entity.Property(e => e.Name)
+                entity.Property(e => e.Description)
                     .IsRequired()
                     .HasMaxLength(255);
 
-                entity.Property(e => e.Value).HasColumnType("decimal");
+                entity.Property(e => e.Price).HasColumnType("decimal");
+
+                entity.Property(e => e.PriceExtended).HasColumnType("decimal(20,4)");
+
+                entity.Property(e => e.TimeExpire).HasColumnType("datetime");
 
                 entity.HasOne(d => d.Company)
                     .WithMany(p => p.Item)
-                    .HasForeignKey(d => d.CompanyId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .HasForeignKey(d => d.CompanyId);
+
+                entity.HasOne(d => d.Group)
+                    .WithMany(p => p.Item)
+                    .HasForeignKey(d => d.GroupId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

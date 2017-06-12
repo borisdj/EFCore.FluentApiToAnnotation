@@ -349,14 +349,24 @@ namespace EFCore.FluentApiToAnnotation
                 if (!isDefaultConfig)
                 {
                     string[] configTypeAndParam = entityConfigs[k].Split("(", 2);
-                    string attributeName = ApiToAnnotationDict[configTypeAndParam[0]];
+                    bool hasCustomDecimalPrecision = configTypeAndParam[1].StartsWith(@"""decimal(");
+                    string attributeName = hasCustomDecimalPrecision ? "DecimalType" : ApiToAnnotationDict[configTypeAndParam[0]];
+
                     var attributesDict = entityClass.Properties[attributeProperty].Attributes;
                     bool isExistingAttribute = attributesDict.ContainsKey(attributeName);
                     var attribute = isExistingAttribute ? attributesDict[attributeName] : new AttributeModel(attributeName);
                     if(!isExistingAttribute)
                         entityClass.Properties[attributeProperty].AddAttribute(attribute);
 
-                    string parameterValue = (configTypeAndParam[0] == "HasColumnType" ? "TypeName = " : "") + configTypeAndParam[1];
+                    string parameterValue = null;
+                    if (hasCustomDecimalPrecision)
+                    {
+                        parameterValue = configTypeAndParam[1].Remove(@"""decimal(").Remove(@")""").Replace(",",", ");
+                    }
+                    else
+                    {
+                        parameterValue = (configTypeAndParam[0] == "HasColumnType" ? "TypeName = " : "") + configTypeAndParam[1];
+                    }
                     if (!String.IsNullOrWhiteSpace(parameterValue))
                     {
                         attribute.Parameters.Add(new Parameter(parameterValue));
@@ -428,11 +438,11 @@ namespace EFCore.FluentApiToAnnotation
 
         private void LoadPropertyAnnotationDict()
         {
-            ApiToAnnotationDict.Add("ValueGeneratedNever", "DatabaseGenerated(DatabaseGeneratedOption.None)"); // EF SCAFFOLD bug - ignores Delete Rule of FK
+            ApiToAnnotationDict.Add("ValueGeneratedNever", "DatabaseGenerated(DatabaseGeneratedOption.None)");
             ApiToAnnotationDict.Add("ValueGeneratedOnAdd", "DatabaseGenerated(DatabaseGeneratedOption.Identity)");
             ApiToAnnotationDict.Add("ValueGeneratedOnAddOrUpdate", "DatabaseGenerated(DatabaseGeneratedOption.Computed)");
             ApiToAnnotationDict.Add("HasColumnName", "Column");
-            ApiToAnnotationDict.Add("HasColumnType", "Column"); // curently has only DecimalType custom precision support
+            ApiToAnnotationDict.Add("HasColumnType", "Column");
             ApiToAnnotationDict.Add("IsRequired", "Required");
             ApiToAnnotationDict.Add("HasMaxLength", "MaxLength");
             ApiToAnnotationDict.Add("HasDefaultValue", "DefaultValue");
