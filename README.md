@@ -22,22 +22,22 @@ When having FK with DeleteBehaviour that is not default, it has to be configured
 EXAMPLE<br>
 DB tables: **Group**, **Company**, **Item**
 
-| Column Name  | Data Type          | AllowNulls | Identity | Specifics                |
-| ------------ | ------------------ | ---------- | -------- | ------------------------ |
-| GroupId      | int                | False      | False    |                          |
-| Name         | nvarchar(MAX)      | False      |          |                          |
-|--------------|--------------------|------------|----------| ------------------------ |
-| CompanyId    | uniqueidentifier   | False      | False    |                          |
-| Name         | nvarchar(MAX)      | False      |          |                          |
-|--------------|--------------------|------------|----------| ------------------------ |
-| ItemId       | uniqueidentifier   | False      | False    |                          |
-| CompanyId    | uniqueidentifier   | False      |          | FkTable: Company(Cascade)|
-| Description  | nvarchar(255)      | False      |          | UniqueIndex              |
-| GroupId      | int                | False      |          | FkTable: Group (Restrict)|
-| Price        | decimal(18, 2)     | False      |          |                          |
-| PriceExtended| decimal(20, 4)     | True       |          |                          |
-| TimeCreated  | datetime2(7)       | False      |          |                          |
-| TimeExpire   | datetime           | True       |          |                          |
+| Column Name  | Data Type          | AllowNulls | Specifics                |
+| ------------ | ------------------ | ---------- | ------------------------ |
+| GroupId      | int                | False      | PK (Identity:False)      |
+| Name         | nvarchar(MAX)      | False      |                          |
+|--------------|--------------------|------------| ------------------------ |
+| CompanyId    | uniqueidentifier   | False      | PK (Identity:False)      |
+| Name         | nvarchar(MAX)      | False      |                          |
+|--------------|--------------------|------------| ------------------------ |
+| ItemId       | uniqueidentifier   | False      | PK (Identity:False)      |
+| CompanyId    | uniqueidentifier   | False      | FKTable: Company(Cascade)|
+| Description  | nvarchar(255)      | False      | UniqueIndex              |
+| GroupId      | int                | False      | FKTable: Group (Restrict)|
+| Price        | decimal(18, 2)     | False      |                          |
+| PriceExtended| decimal(20, 4)     | True       |                          |
+| TimeCreated  | datetime2(7)       | False      |                          |
+| TimeExpire   | datetime           | True       |                          |
 
 Scaffolded:
 
