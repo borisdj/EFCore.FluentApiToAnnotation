@@ -13,7 +13,7 @@ If we still want to have it in Annotations we would need to retype it and add ap
 Since database could be pretty large regarding number of tables this would be a of lot boring work.<br>
 So this application actuality automates that conversion.<br>
 It reads all files of Entity classes creating its models, parses FluentApi configs from Context, than adds apropriate Attributes to model, and writes again new files. Class models and writing them is implemented with [CsCodeGenerator](https://github.com/borisdj/CsCodeGenerator) library.<br>
-Additionally ICollections are omitted and DbSets are changed to plural: `DbSet<Company> Company` -> `DbSet<Company> Companies`.<br>
+Additionally ICollections are omitted and DbSets changed to plural: `DbSet<Company> Company` -> `DbSet<Company> Companies`.<br>
 Here in repository there is exe.zip file which contains built app and 2 folders: `EntitiesInput` where we should put input files and the app will generate new files in `EntitiesOutput` folder.
 
 REMARK:
