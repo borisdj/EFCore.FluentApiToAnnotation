@@ -20,6 +20,8 @@ REMARK:
 Currently there is no Attribute for custom  [*DeleteBehaviour(Rule)*](https://github.com/isukces/EfCore.Shaman/issues/7) options.
 When having FK with DeleteBehaviour that is not default, it has to be configured in FluentApi explicitly. This will be updated when that feature gets implemented.
 
+[![NuGet](https://img.shields.io/npm/l/express.svg)](https://github.com/borisdj/EFCore.FluentApiToAnnotation/blob/master/LICENSE)
+
 EXAMPLE<br>
 DB tables: **dbo.Company**, **dbo.Group**, **fin.Item**
 
