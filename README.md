@@ -20,14 +20,14 @@ Currently there is no Attribute for custom  [*DeleteBehaviour(Rule)*](https://gi
 When having FK with DeleteBehaviour that is not default, it has to be configured in FluentApi explicitly.
 
 EXAMPLE<br>
-DB tables: **Group**, **Company**, **Item**
+DB tables: **dbo.Group**, **dbo.Company**, **fin.Item**
 
 | Column Name  | Data Type          | AllowNulls | Specifics                |
 | ------------ | ------------------ | ---------- | ------------------------ |
-| GroupId      | int                | False      | PK (Identity: False)      |
+| CompanyId    | int                | False      | PK (Identity: False)      |
 | Name         | nvarchar(MAX)      | False      |                          |
 |--------------|--------------------|------------| ------------------------ |
-| CompanyId    | uniqueidentifier   | False      | PK (Identity: False)      |
+| GroupId      | uniqueidentifier   | False      | PK (Identity: False)      |
 | Name         | nvarchar(MAX)      | False      |                          |
 |--------------|--------------------|------------| ------------------------ |
 | ItemId       | uniqueidentifier   | False      | PK (Identity: False)      |
@@ -50,11 +50,13 @@ public partial class CoreTemplateContext : DbContext
             entity.Property(e => e.CompanyId).ValueGeneratedNever();
             entity.Property(e => e.Name).IsRequired();
         });
+        
         modelBuilder.Entity<Group>(entity =>
         {
             entity.Property(e => e.GroupId).ValueGeneratedNever();
             entity.Property(e => e.Name).IsRequired();
         });
+        
         modelBuilder.Entity<Item>(entity =>
         {
             entity.ToTable("Item", "fin");
@@ -79,6 +81,32 @@ public partial class CoreTemplateContext : DbContext
 
 Converted:
 ```csharp
+public partial class CoreTemplateContext : DbContext
+{
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        this.FixOnModelCreating(modelBuilder);
+        modelBuilder.Entity<Item>().HasOne(p => p.Group).WithMany().OnDelete(DeleteBehavior.Restrict);
+    }
+}
+public class Company
+{
+    public Guid CompanyId { get; set; }
+
+    [Required]
+    public string Name { get; set; }
+}
+
+public class Group
+{
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public int GroupId { get; set; }
+
+    [Required]
+    public string Name { get; set; }
+}
+
 [Table(nameof(Item), Schema = "fin")]
 public class Item
 {
