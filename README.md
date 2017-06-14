@@ -2,7 +2,7 @@
 Console app in NetCore for converting FluentApi configuration to Annotations(Attributes extended with [EfCore.Shaman](https://github.com/isukces/EfCore.Shaman) lib)
 
 When using EntityFrameworkCore Code First approach specific config can be defined with [FluentApi](https://msdn.microsoft.com/en-us/library/jj591620(v=vs.113).aspx) or with [Annotations](https://msdn.microsoft.com/en-us/library/jj591583(v=vs.113).aspx).<br>
-I prefere Annotations because it requires less code, it's all in one place and configs are directly on Property they refer, similar like in database itself.<br>
+I prefere Annotations because it requires less code, it's all in one place and configs are directly on Property they refer, similar like in database itself. Also nice thing here is that there is a lot of convention so we often get desired model without having to configre everything explicitly, like PK Name *Id* or *TableId* so not need for `[Key]` attribute<br>
 Only problem with Annotations was that EFCore does not have Attributes for everything, but with the help of EfCore.Shaman library that problem is solved.<br>
 This works well when creating new App, but sometimes we are migrating existing App to new Framework.<br>
 In that situation EFCore have built-in reverse engineering functionality:<br>
@@ -13,7 +13,7 @@ If we still want to have it in Annotations we would need to retype it and add ap
 Since database could be pretty large regarding number of tables this would be a of lot boring work.<br>
 So this application actuality automates that conversion.<br>
 It reads all files of Entity classes creating its models, parses FluentApi configs from Context, than adds apropriate Attributes to model, and writes again new files. Class models and writing them is implemented with [CsCodeGenerator](https://github.com/borisdj/CsCodeGenerator) library.<br>
-Additionally DbSets are changed to plural: `DbSet<Company> Company` -> `DbSet<Company> Companies`.<br>
+Additionally ICollections are omitted and DbSets are changed to plural: `DbSet<Company> Company` -> `DbSet<Company> Companies`.<br>
 Here in repository there is exe.zip file which contains built app and 2 folders: `EntitiesInput` where we should put input files and the app will generate new files in `EntitiesOutput` folder.
 
 REMARK:
@@ -77,7 +77,8 @@ public partial class AppContext : DbContext
             entity.Property(e => e.TimeExpire).HasColumnType("datetime");
 
             entity.HasOne(d => d.Company).WithMany(p => p.Item).HasForeignKey(d => d.CompanyId);
-            entity.HasOne(d => d.Group).WithMany(p => p.Item).HasForeignKey(d => d.GroupId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(d => d.Group).WithMany(p => p.Item).HasForeignKey(d => d.GroupId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
     ...
