@@ -13,11 +13,12 @@ If we still want to have it in Annotations we would need to retype it and add ap
 Since database could be pretty large regarding number of tables this would be a of lot boring work.<br>
 So this application actuality automates that conversion.<br>
 It reads all files of Entity classes creating its models, parses FluentApi configs from Context, than adds apropriate Attributes to model, and writes again new files. Class models and writing them is implemented with [CsCodeGenerator](https://github.com/borisdj/CsCodeGenerator) library.<br>
+Additionally DbSets are changed to plural: `DbSet<Company> Company` -> `DbSet<Company> Companies`.<br>
 Here in repository there is exe.zip file which contains built app and 2 folders: `EntitiesInput` where we should put input files and the app will generate new files in `EntitiesOutput` folder.
 
 REMARK:
 Currently there is no Attribute for custom  [*DeleteBehaviour(Rule)*](https://github.com/isukces/EfCore.Shaman/issues/7) options.
-When having FK with DeleteBehaviour that is not default, it has to be configured in FluentApi explicitly.
+When having FK with DeleteBehaviour that is not default, it has to be configured in FluentApi explicitly. Tt will be updated when this feature gets implemented.
 
 EXAMPLE<br>
 DB tables: **dbo.Company**, **dbo.Group**, **fin.Item**
@@ -41,8 +42,12 @@ DB tables: **dbo.Company**, **dbo.Group**, **fin.Item**
 
 Scaffolded:
 ```csharp
-public partial class CoreTemplateContext : DbContext
+public partial class AppContext : DbContext
 {
+    public virtual DbSet<Company> Company { get; set; }
+    public virtual DbSet<Group> Group { get; set; }
+    public virtual DbSet<Item> Item { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Company>(entity =>
@@ -122,8 +127,12 @@ public partial class Item
 
 Converted:
 ```csharp
-public partial class CoreTemplateContext : DbContext
+public partial class AppContext : DbContext
 {
+    public DbSet<Company> Companies { get; set; }
+    public DbSet<Group> Groups { get; set; }
+    public DbSet<Item> Items { get; set; }
+        
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -131,6 +140,7 @@ public partial class CoreTemplateContext : DbContext
         modelBuilder.Entity<Item>().HasOne(p => p.Group).WithMany().OnDelete(DeleteBehavior.Restrict);
     }
 }
+
 public class Company
 {
     public Guid CompanyId { get; set; }
