@@ -1,7 +1,7 @@
 # EFCore.FluentApiToAnnotation
 Console application for converting FluentApi configuration to Annotations (Attributes extended with [EfCore.Shaman](https://github.com/isukces/EfCore.Shaman) library).
 
-When using EntityFrameworkCore Code First approach specific characteristics can be defined with [FluentApi](https://msdn.microsoft.com/en-us/library/jj591620(v=vs.113).aspx) or with [Annotations](https://msdn.microsoft.com/en-us/library/jj591583(v=vs.113).aspx).<br>
+When using EntityFrameworkCore Code First approach specific config can be defined with [FluentApi](https://msdn.microsoft.com/en-us/library/jj591620(v=vs.113).aspx) or with [Annotations](https://msdn.microsoft.com/en-us/library/jj591583(v=vs.113).aspx).<br>
 I prefere Annotations because it requires less code, it's all in one place and configs are directly on Property they refer, similar like in database itself.<br>
 Only problem with Annotations was that EFCore does not have Attributes for everything, but with the help of EfCore.Shaman library that problem is solved.<br>
 This works well when creating new App, but sometimes we are migrating existing App to new Framework.<br>
