@@ -24,14 +24,14 @@ DB tables: **Group**, **Company**, **Item**
 
 | Column Name  | Data Type          | AllowNulls | Specifics                |
 | ------------ | ------------------ | ---------- | ------------------------ |
-| GroupId      | int                | False      | PK (Identity:False)      |
+| GroupId      | int                | False      | PK (Identity: False)      |
 | Name         | nvarchar(MAX)      | False      |                          |
 |--------------|--------------------|------------| ------------------------ |
-| CompanyId    | uniqueidentifier   | False      | PK (Identity:False)      |
+| CompanyId    | uniqueidentifier   | False      | PK (Identity: False)      |
 | Name         | nvarchar(MAX)      | False      |                          |
 |--------------|--------------------|------------| ------------------------ |
-| ItemId       | uniqueidentifier   | False      | PK (Identity:False)      |
-| CompanyId    | uniqueidentifier   | False      | FKTable: Company(Cascade)|
+| ItemId       | uniqueidentifier   | False      | PK (Identity: False)      |
+| CompanyId    | uniqueidentifier   | False      | FKTable: Company (Cascade)|
 | Description  | nvarchar(255)      | False      | UniqueIndex              |
 | GroupId      | int                | False      | FKTable: Group (Restrict)|
 | Price        | decimal(18, 2)     | False      |                          |
