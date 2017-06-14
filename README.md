@@ -7,7 +7,7 @@ Only problem with Annotations was that EFCore does not have Attributes for every
 This works well when creating new App, but sometimes we are migrating existing App to new Framework.<br>
 In that situation EFCore have built-in reverse engineering functionality:<br>
 `Scaffold-DbContext "Server=localhost;Database=DbName;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Entities`<br>
-Now this creates pure POCO classes and Context file that has all specifics in FluentApi.<br>
+Now this creates pure POCO classes and Context file that has all configuration in FluentApi.<br>
 
 If we still want to have it in Annotations we would need to retype it and add appropriate Attributes to Entity classes.<br>
 Since database could be pretty large regarding number of tables this would be a of lot boring work.<br>
@@ -23,18 +23,18 @@ When having FK with DeleteBehaviour that is not default, it has to be configured
 EXAMPLE<br>
 DB tables: **dbo.Company**, **dbo.Group**, **fin.Item**
 
-| Column Name  | Data Type          | AllowNulls | Specifics                |
+| Column Name  | Data Type          | AllowNulls | Configuration            |
 | ------------ | ------------------ | ---------- | ------------------------ |
-| CompanyId    | int                | False      | PK (Identity: False)      |
+| CompanyId    | int                | False      | PK (Identity: False)     |
 | Name         | nvarchar(MAX)      | False      |                          |
 |--------------|--------------------|------------| ------------------------ |
-| GroupId      | uniqueidentifier   | False      | PK (Identity: False)      |
+| GroupId      | uniqueidentifier   | False      | PK (Identity: False)     |
 | Name         | nvarchar(MAX)      | False      |                          |
 |--------------|--------------------|------------| ------------------------ |
-| ItemId       | uniqueidentifier   | False      | PK (Identity: False)      |
-| CompanyId    | uniqueidentifier   | False      | FKTable: Company (Cascade)|
+| ItemId       | uniqueidentifier   | False      | PK (Identity: False)     |
+| CompanyId    | uniqueidentifier   | False      | FKTable: Company(Cascade)|
 | Description  | nvarchar(255)      | False      | UniqueIndex              |
-| GroupId      | int                | False      | FKTable: Group (Restrict)|
+| GroupId      | int                | False      | FKTable: Group(Restrict) |
 | Price        | decimal(18, 2)     | False      |                          |
 | PriceExtended| decimal(20, 4)     | True       |                          |
 | TimeCreated  | datetime2(7)       | False      |                          |
