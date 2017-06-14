@@ -77,6 +77,47 @@ public partial class CoreTemplateContext : DbContext
     }
     ...
 }
+
+public partial class Company
+{
+    public Company()
+    {
+        Item = new HashSet<Item>();
+    }
+
+    public Guid CompanyId { get; set; }
+    public string Name { get; set; }
+
+    public virtual ICollection<Item> Item { get; set; }
+}
+
+public partial class Group
+{
+    public Group()
+    {
+        Item = new HashSet<Item>();
+    }
+
+    public int GroupId { get; set; }
+    public string Name { get; set; }
+
+    public virtual ICollection<Item> Item { get; set; }
+}
+
+public partial class Item
+{
+    public Guid ItemId { get; set; }
+    public Guid CompanyId { get; set; }
+    public string Description { get; set; }
+    public int GroupId { get; set; }
+    public decimal Price { get; set; }
+    public decimal? PriceExtended { get; set; }
+    public DateTime TimeCreated { get; set; }
+    public DateTime? TimeExpire { get; set; }
+
+    public virtual Company Company { get; set; }
+    public virtual Group Group { get; set; }
+}
 ```
 
 Converted:
