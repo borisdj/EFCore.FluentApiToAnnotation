@@ -20,7 +20,7 @@ Currently there is no Attribute for custom  [*DeleteBehaviour(Rule)*](https://gi
 When having FK with DeleteBehaviour that is not default, it has to be configured in FluentApi explicitly.
 
 EXAMPLE<br>
-DB tables: **dbo.Group**, **dbo.Company**, **fin.Item**
+DB tables: **dbo.Company**, **dbo.Group**, **fin.Item**
 
 | Column Name  | Data Type          | AllowNulls | Specifics                |
 | ------------ | ------------------ | ---------- | ------------------------ |
