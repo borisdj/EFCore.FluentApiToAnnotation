@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using EfCore.Shaman;
 
-namespace CoreTemplate.Entities2
+namespace CoreTemplate.Entities
 {
     public class Company
     {

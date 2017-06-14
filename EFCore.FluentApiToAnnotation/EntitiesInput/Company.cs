@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CoreTemplate.Entities2
+namespace CoreTemplate.Entities
 {
     public partial class Company
     {

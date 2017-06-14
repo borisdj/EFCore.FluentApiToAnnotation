@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace CoreTemplate.Entities2
+namespace CoreTemplate.Entities
 {
     public partial class CoreTemplateContext : DbContext
     {
