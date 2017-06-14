@@ -18,7 +18,7 @@ Here in repository there is exe.zip file which contains built app and 2 folders:
 
 REMARK:
 Currently there is no Attribute for custom  [*DeleteBehaviour(Rule)*](https://github.com/isukces/EfCore.Shaman/issues/7) options.
-When having FK with DeleteBehaviour that is not default, it has to be configured in FluentApi explicitly. Tt will be updated when this feature gets implemented.
+When having FK with DeleteBehaviour that is not default, it has to be configured in FluentApi explicitly. This will be updated when that feature gets implemented.
 
 EXAMPLE<br>
 DB tables: **dbo.Company**, **dbo.Group**, **fin.Item**
