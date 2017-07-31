@@ -3,7 +3,7 @@ Console app in NetCore for converting FluentApi configuration to Annotations(Att
 Latest version 1.0.3
 
 When using EntityFrameworkCore Code First approach specific config can be defined with [FluentApi](https://msdn.microsoft.com/en-us/library/jj591620(v=vs.113).aspx) or with [Annotations](https://msdn.microsoft.com/en-us/library/jj591583(v=vs.113).aspx).<br>
-I prefere Annotations because it requires less code, it's all in one place and configs are directly on Property they refer, similar like in database itself. Also nice thing here is that there is a lot of convention so we often get desired model without having to configre everything explicitly, like when PK is named *Id* or *TableId* we don't need `[Key]` attribute<br>
+I prefere Annotations because it requires less code, it's all in one place and configs are directly on Property they refer, similar like in database itself. Also nice thing here is that there is a lot of convention so we often get desired model without having to configure everything explicitly, like when PK is named *Id* or *TableId* we don't need `[Key]` attribute.<br>
 Only problem with Annotations was that EFCore does not have Attributes for everything, but with the help of EfCore.Shaman library that problem is solved.<br>
 This works well when creating new App, but sometimes we are migrating existing App to new Framework.<br>
 In that situation EFCore have built-in reverse engineering functionality:<br>
