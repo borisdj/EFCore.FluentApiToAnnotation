@@ -21,13 +21,6 @@ REMARK:
 Currently there is no Attribute for custom  [*DeleteBehaviour(Rule)*](https://github.com/isukces/EfCore.Shaman/issues/7) options.
 When having FK with DeleteBehaviour that is not default, it has to be configured in FluentApi explicitly. This will be updated when that feature gets implemented.
 
-## Contributing
-Please read [CONTRIBUTING](CONTRIBUTING.md) for details on code of conduct, and the process for submitting pull requests.  
-When opening issues do write detailed explanation of the problem or feature with reproducible example.  
-Want to **Contact** for Development & Consulting: [www.codis.tech](http://www.codis.tech) (*Quality Delivery*)  
-
-[![NuGet](https://img.shields.io/npm/l/express.svg)](https://github.com/borisdj/EFCore.FluentApiToAnnotation/blob/master/LICENSE)
-
 Also take a look into others packages:</br>
 -Open source (MIT or cFOSS) authored [.Net libraries](https://infopedia.io/dot-net-libraries/) (@**Infopedia.io** personal blog post)
 | №  | .Net library             | Description                                              |
@@ -38,6 +31,20 @@ Also take a look into others packages:</br>
 | 4  | [FixedWidthParserWriter](https://github.com/borisdj/FixedWidthParserWriter) | Reading & Writing fixed-width/flat data files |
 | 5  | [CsCodeGenerator](https://github.com/borisdj/CsCodeGenerator) | C# code generation based on Classes and elements |
 | 6  | [CsCodeExample](https://github.com/borisdj/CsCodeExample) | Examples of C# code in form of a simple tutorial |
+
+## License
+[![NuGet](https://img.shields.io/npm/l/express.svg)](https://github.com/borisdj/EFCore.FluentApiToAnnotation/blob/master/LICENSE)
+
+## Support
+If you find this project useful you can mark it by leaving a Github **Star** :star:  
+And even with community license, if you want help development, you can make a DONATION:  
+[<img src="https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png" alt="Buy Me A Coffee" height=28>](https://www.buymeacoffee.com/boris.dj) _ or _ 
+[![Button](https://img.shields.io/badge/donate-Bitcoin-orange.svg?logo=bitcoin):zap:](https://borisdj.net/donation/donate-btc.html)
+
+## Contributing
+Please read [CONTRIBUTING](CONTRIBUTING.md) for details on code of conduct, and the process for submitting pull requests.  
+When opening issues do write detailed explanation of the problem or feature with reproducible example.  
+Want to **Contact** for Development & Consulting: [www.codis.tech](http://www.codis.tech) (*Quality Delivery*) 
 
 EXAMPLE<br>
 DB tables: **dbo.Company**, **dbo.Group**, **fin.Item**
