@@ -1,6 +1,6 @@
 # EFCore.FluentApiToAnnotation
 Console app in NetCore for converting FluentApi configuration to Annotations (Attributes extended with [EfCore.Shaman](https://github.com/isukces/EfCore.Shaman) lib)  
-Latest version 1.0.3
+Latest version 1.0.3 
 
 When using EntityFrameworkCore Code First approach specific config can be defined with [FluentApi](https://msdn.microsoft.com/en-us/library/jj591620(v=vs.113).aspx) or with [Annotations](https://msdn.microsoft.com/en-us/library/jj591583(v=vs.113).aspx).<br>
 I prefere Annotations because it requires less code, it's all in one place and configs are directly on Property they refer, similar like in database itself. Also nice thing here is that there is a lot of convention so we often get desired model without having to configure everything explicitly, like when PK is named *Id* or *TableId* we don't need `[Key]` attribute.<br>
@@ -21,6 +21,7 @@ REMARK:
 Currently there is no Attribute for custom  [*DeleteBehaviour(Rule)*](https://github.com/isukces/EfCore.Shaman/issues/7) options.
 When having FK with DeleteBehaviour that is not default, it has to be configured in FluentApi explicitly. This will be updated when that feature gets implemented.
 
+[![License](https://img.shields.io/npm/l/express.svg)](https://github.com/borisdj/EFCore.FluentApiToAnnotation/blob/master/LICENSE)  
 Also take a look into others packages:</br>
 -Open source (MIT or cFOSS) authored [.Net libraries](https://infopedia.io/dot-net-libraries/) (@**Infopedia.io** personal blog post)
 | №  | .Net library             | Description                                              |
@@ -31,9 +32,6 @@ Also take a look into others packages:</br>
 | 4  | [FixedWidthParserWriter](https://github.com/borisdj/FixedWidthParserWriter) | Reading & Writing fixed-width/flat data files |
 | 5  | [CsCodeGenerator](https://github.com/borisdj/CsCodeGenerator) | C# code generation based on Classes and elements |
 | 6  | [CsCodeExample](https://github.com/borisdj/CsCodeExample) | Examples of C# code in form of a simple tutorial |
-
-## License
-[![NuGet](https://img.shields.io/npm/l/express.svg)](https://github.com/borisdj/EFCore.FluentApiToAnnotation/blob/master/LICENSE)
 
 ## Support
 If you find this project useful you can mark it by leaving a Github **Star** :star:  
@@ -46,6 +44,7 @@ Please read [CONTRIBUTING](CONTRIBUTING.md) for details on code of conduct, and 
 When opening issues do write detailed explanation of the problem or feature with reproducible example.  
 Want to **Contact** for Development & Consulting: [www.codis.tech](http://www.codis.tech) (*Quality Delivery*) 
 
+## Usage
 EXAMPLE<br>
 DB tables: **dbo.Company**, **dbo.Group**, **fin.Item**
 
